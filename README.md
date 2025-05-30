@@ -1,11 +1,11 @@
 # POC for creating reproducible jax-based python environments for MaxText
 
 ## Some non-obvious notes
-1. To get an idea how this all works under the hood check the `build_seed_env.sh`, it is pretty short and self explanatory for the most part.
-2. CUDA deps are pulled as python wheels, which is the recommended for JAX to get CUDA, no system-wide cuda packages are needed except driver.
-3. Presense of libtpu in an env makes jax to assume that it  must run on TPU, so for any GPU-based workflows libtpu must be excluded (thus the `constraints_tpu_only.txt` file)
-4. CUDA wheels are big and heavy, installing for TPU workflows is an unnecessary waste of resources (thus the `constraints_gpu_only.txt`). 
-
+1. The general idea of the approach is to rely on already vast and well tested locked set of deps that JAX itself uses for a big chunk of its own testing (including presubmit and continuous jobs). Propagating those dependencies inside MaxText environment ensures that for a specific JAX version MaxText runs itself on as close environment as possible to what JAX of the same version was testing itself when it was getting released.
+2. To get an idea how this all works under the hood check the `build_seed_env.sh`, it is pretty short and self explanatory for the most part.
+3. CUDA deps are pulled as python wheels, which is the recommended for JAX to get CUDA, no system-wide cuda packages are needed except driver.
+4. Presense of libtpu in an env makes jax to assume that it  must run on TPU, so for any GPU-based workflows libtpu must be excluded (thus the `constraints_tpu_only.txt` file)
+5. CUDA wheels are big and heavy, installing for TPU workflows is an unnecessary waste of resources (thus the `constraints_gpu_only.txt`).  
 
 ## Quick start
 1. Always start in a directory with minimal `pyproject.toml` (as it is in this repo), and no `uv.lock` file present.
