@@ -28,7 +28,7 @@ cat constraints_tpu_only.txt | xargs -I {} uv remove --managed-python --no-sync 
 # maxtext_requirements.txt, lower bound them  in project.toml manually
 uv add --managed-python --no-sync --resolution=highest -r requirements.txt
 uv export --managed-python --locked --no-hashes --no-annotate --resolution=highest --output-file=./tpu_seed/python_3_11/maxtext_requirements_lock_3_11.txt
-python3 lock_to_lower_bound_project.py ./tpu_seed/python_3_12/maxtext_requirements_lock_3_11.txt pyproject.toml
+python3 lock_to_lower_bound_project.py ./tpu_seed/python_3_11/maxtext_requirements_lock_3_11.txt pyproject.toml
 rm uv.lock
 uv lock --managed-python --resolution=lowest
 uv export --managed-python --locked --no-hashes --no-annotate --resolution=lowest --output-file=./tpu_seed/python_3_11/maxtext_requirements_lock_3_11.txt
