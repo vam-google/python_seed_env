@@ -4,7 +4,7 @@ set -e
 
 # Picking latest (for the moment of writing this) released JAX and latest
 # MaxText commit
-curl https://raw.githubusercontent.com/jax-ml/jax/c09b1bb763d846a694f919e5a5adda9575ce66d6/build/requirements_lock_3_12.txt -O
+curl https://raw.githubusercontent.com/jax-ml/jax/c09b1bb763d846a694f919e5a5adda9575ce66d6/build/requirements_lock_3_10.txt -O
 curl https://raw.githubusercontent.com/AI-Hypercomputer/maxtext/80c0884a413219bbc317eaea20571d995cbe6566/requirements.txt -O
 
 # Fixing current maxtext requirements.txt
@@ -16,22 +16,23 @@ sed -i 's/sentencepiece==0.1.97/sentencepiece>=0.1.97/g' requirements.txt
 # for source links. They are a very small minority of deps, so imposing this requirement should be fine
 sed -i 's/\/JetStream.git/\/JetStream.git@261f25007e4d12bb57cf8d5d61e291ba8f18430f/g' requirements.txt
 sed -i 's/\/logging.git/\/logging.git@44b4810e65e8c0a7d9e4e207c60e51d9458a3fb8/g' requirements.txt
+echo "tensorflow-metadata>=1.14.0" >> requirements.txt
 
 # Commands to create env
 # ---------------------------------
-uv add --managed-python --no-build --no-sync --resolution=highest -r requirements_lock_3_12.txt
-# Uncomment if building GPU env
+uv add --managed-python --no-build --no-sync --resolution=highest -r requirements_lock_3_10.txt
+# Comment if building GPU env
 # cat constraints_gpu_only.txt | xargs -I {} uv remove --managed-python --no-sync --resolution=highest {}
 # Comment if building TPU env
 cat constraints_tpu_only.txt | xargs -I {} uv remove --managed-python --no-sync --resolution=highest {}
 # Here if there are any deps in project.toml that conflict with
 # maxtext_requirements.txt, lower bound them  in project.toml manually
 uv add --managed-python --no-sync --resolution=highest -r requirements.txt
-uv export --managed-python --locked --no-hashes --no-annotate --resolution=highest --output-file=maxtext_requirements_lock_3_12.txt
-python3 lock_to_lower_bound_project.py maxtext_requirements_lock_3_12.txt pyproject.toml
+uv export --managed-python --locked --no-hashes --no-annotate --resolution=highest --output-file=maxtext_requirements_lock_3_10.txt
+python3 lock_to_lower_bound_project.py maxtext_requirements_lock_3_10.txt pyproject.toml
 rm uv.lock
 uv lock --managed-python --resolution=lowest
-uv export --managed-python --locked --no-hashes --no-annotate --resolution=lowest --output-file=maxtext_requirements_lock_3_12.txt
+uv export --managed-python --locked --no-hashes --no-annotate --resolution=lowest --output-file=maxtext_requirements_lock_3_10.txt
 
 # Congrats, you've done it:
 #   - maxtext_requirements_lock_3_12.txt is your well-defined reproducible python
