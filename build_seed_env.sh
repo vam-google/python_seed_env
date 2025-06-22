@@ -4,7 +4,7 @@ set -e
 
 # Picking latest (for the moment of writing this) released JAX and latest
 # MaxText commit
-curl https://raw.githubusercontent.com/jax-ml/jax/c09b1bb763d846a694f919e5a5adda9575ce66d6/build/requirements_lock_3_12.txt -O
+curl https://raw.githubusercontent.com/jax-ml/jax/d3f08713bc8cc2700851c61c55d7d7dde1de5a02/build/requirements_lock_3_12.txt -O
 curl https://raw.githubusercontent.com/AI-Hypercomputer/maxtext/80c0884a413219bbc317eaea20571d995cbe6566/requirements.txt -O
 
 # Fixing current maxtext requirements.txt
