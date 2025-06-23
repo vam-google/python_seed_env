@@ -22,16 +22,16 @@ sed -i 's/\/logging.git/\/logging.git@44b4810e65e8c0a7d9e4e207c60e51d9458a3fb8/g
 uv add --managed-python --no-build --no-sync --resolution=highest -r requirements_lock_3_12.txt
 # Uncomment if building GPU env
 # cat constraints_gpu_only.txt | xargs -I {} uv remove --managed-python --no-sync --resolution=highest {}
-# Comment if building TPU env
+# Uncomment if building TPU env
 cat constraints_tpu_only.txt | xargs -I {} uv remove --managed-python --no-sync --resolution=highest {}
 # Here if there are any deps in project.toml that conflict with
 # maxtext_requirements.txt, lower bound them  in project.toml manually
 uv add --managed-python --no-sync --resolution=highest -r requirements.txt
-uv export --managed-python --locked --no-hashes --no-annotate --resolution=highest --output-file=maxtext_requirements_lock_3_12.txt
-python3 lock_to_lower_bound_project.py maxtext_requirements_lock_3_12.txt pyproject.toml
+uv export --managed-python --locked --no-hashes --no-annotate --resolution=highest --output-file=./tpu_seed/python_3_12/maxtext_requirements_lock_3_12.txt
+python3 lock_to_lower_bound_project.py ./tpu_seed/python_3_12/maxtext_requirements_lock_3_12.txt pyproject.toml
 rm uv.lock
 uv lock --managed-python --resolution=lowest
-uv export --managed-python --locked --no-hashes --no-annotate --resolution=lowest --output-file=maxtext_requirements_lock_3_12.txt
+uv export --managed-python --locked --no-hashes --no-annotate --resolution=lowest --output-file=./tpu_seed/python_3_12/maxtext_requirements_lock_3_12.txt
 
 # Congrats, you've done it:
 #   - maxtext_requirements_lock_3_12.txt is your well-defined reproducible python
@@ -48,3 +48,4 @@ uv export --managed-python --locked --no-hashes --no-annotate --resolution=lowes
 # uv cache clean
 # uv tree --resolution=lowest --locked
 # uv venv --managed-python --seed
+
