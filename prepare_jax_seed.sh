@@ -2,6 +2,8 @@
 # set -x
 set -e
 
+echo "Current working directory in script_A: $(pwd)"
+
 source "./utils.sh"
 
 ######################## Seed project specific ########################

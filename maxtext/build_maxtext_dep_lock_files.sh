@@ -33,9 +33,10 @@ fi
 download_remote_file $maxtext_remote_url
 # Fixing current maxtext requirements.txt
 # TODO: Check if we should make the following less hard coded.
+# TODO(kanglan): Update it in the maxtext repo and remove this block. Recommend to have lower bounds for each dep in the requirements.txt
 # For whatever reason MaxText pins protobuf dependency to 3.20.3 which is not even supported anymore
 # Note, it is better to let tensorflow (which is a dependency here) to define protobuf dep)
-sed -i 's/protobuf==3.20.3/protobuf/g' "$REQUIREMENTS_FILE"
+sed -i 's/protobuf==3.20.3/protobuf>=3.20.3/g' "$REQUIREMENTS_FILE"
 sed -i 's/sentencepiece==0.1.97/sentencepiece>=0.1.97/g' "$REQUIREMENTS_FILE"
 # All source links must be pinned to a hash, there is no other way to guarantee reproducibility
 # for source links. They are a very small minority of deps, so imposing this requirement should be fine
@@ -44,7 +45,6 @@ sed -i 's/\/logging.git/\/logging.git@44b4810e65e8c0a7d9e4e207c60e51d9458a3fb8/g
 # This is a workaround for tensorflow-metadata version issue in python 3.10
 echo "tensorflow-metadata>=1.14.0" >> requirements.txt
 ######################################################################
-chmod + prepare_jax_seed.sh
 
 # TODO: Add an iteration for TPU/GPU
 for python_version in $PYTHON_VERSIONS; do
@@ -73,7 +73,7 @@ for python_version in $PYTHON_VERSIONS; do
     # Save the generated files, i.e., pyproject.toml, maxtext_requirements_lock_<py version>.txt, and uv.lock to a folder
     # TODO: Assert those 3 files eixst
     # TODO: Add a subfoler for TPU/GPU
-    output_folder="seed_env_files/py${python_version/./}/"
+    output_folder="maxtext/seed_env_files/py${python_version/./}/"
     mkdir -p "$output_folder"
     mv uv.lock "$output_folder"
     mv pyproject.toml "$output_folder"
