@@ -130,9 +130,10 @@ def main():
 
         except Exception as e:
             print(f"Error processing Python {python_version}: {e}", file=sys.stderr)
-            # Decide whether to continue or stop on error for a specific Python version
+            # TODO: Decide whether to continue or stop on error for a specific Python version
+            # We are currently continue to the next Python version if encounter errors
             print(f"Skipping Python {python_version} due to error. Continuing with next version if any.", file=sys.stderr)
-            continue # Continue to the next Python version
+            continue
 
     print("\n--- CLI process completed. ---")
 
