@@ -70,7 +70,7 @@ def main():
 
     # 1. Download the MaxText requirements.txt file
     try:
-        download_remote_file(maxtext_remote_url, REQUIREMENTS_FILE_NAME)
+        utils.download_remote_file(maxtext_remote_url)
     except Exception as e:
         print(f"Fatal error during initial requirements file processing: {e}", file=sys.stderr)
         return 1
@@ -98,7 +98,7 @@ def main():
 
         try:
             # Initialize pyproject.toml for the current Python version
-            generate_pyproject_toml(python_version)
+            utils.generate_pyproject_toml(python_version)
 
             # Prepare JAX seed file based on Python version
             if python_version == "3.10":
@@ -146,18 +146,6 @@ def main():
 if __name__ == "__main__":
     # the exit status (0 for success, non-zero for error).
     sys.exit(main())
-
-# Assuming these functions will be provided in the utility package.
-# --- Utility Functions (approximating utils.sh and other script behaviors) ---
-def download_remote_file(url: str, local_path: str):
-    """Downloads a file from a URL to a specified local path."""
-    pass
-
-def generate_pyproject_toml(python_version: str, file_path: str = "pyproject.toml"):
-    """
-    Generates a basic pyproject.toml file for the specified Python version.
-    """
-    pass
 
 # Assuming these functions will be provided in the build seed package.
 # --- Build Seed/Host Env Utility Functions (approximating build_seed_env.sh and other script behaviors) ---
