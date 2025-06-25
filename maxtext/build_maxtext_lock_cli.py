@@ -1,7 +1,11 @@
+#!/usr/bin/env python3
+
 import argparse
 import os
+import prepare_jax_seed
 import shutil
 import sys
+import utils
 
 # --- Configuration Constants (matching shell script's globals) ---
 GITHUB_ORG = "AI-Hypercomputer"
@@ -55,7 +59,7 @@ def main():
 
     # Determine the remote URL for requirements.txt based on the commit/branch
     if args.maxtext_github_commit != "main":
-        if not is_valid_commit(args.maxtext_github_commit, GITHUB_ORG, GITHUB_REPO):
+        if not utils.is_valid_commit(args.maxtext_github_commit, "{GITHUB_ORG}/{GITHUB_REPO}"):
             print(f"Error: Provided commit/branch '{args.maxtext_github_commit}' is not valid. Exiting.", file=sys.stderr)
             return 1
 
@@ -135,7 +139,7 @@ def main():
             print(f"Skipping Python {python_version} due to error. Continuing with next version if any.", file=sys.stderr)
             continue
 
-    print("\n--- CLI process completed. ---")
+    print("\nCompleted building MaxText environment lock files.")
 
     return 0
 
@@ -145,12 +149,6 @@ if __name__ == "__main__":
 
 # Assuming these functions will be provided in the utility package.
 # --- Utility Functions (approximating utils.sh and other script behaviors) ---
-def is_valid_commit(commit_hash: str, repo_owner: str, repo_name: str) -> bool:
-    """
-    Checks if a commit hash or branch name is valid for a given repository.
-    """
-    pass
-
 def download_remote_file(url: str, local_path: str):
     """Downloads a file from a URL to a specified local path."""
     pass
@@ -158,16 +156,6 @@ def download_remote_file(url: str, local_path: str):
 def generate_pyproject_toml(python_version: str, file_path: str = "pyproject.toml"):
     """
     Generates a basic pyproject.toml file for the specified Python version.
-    """
-    pass
-
-# Assuming these functions will be provided in the prepare jax seed package.
-# --- JAX Seed Utility Functions (approximating prepare_jax_seed.sh and other script behaviors) ---
-def prepare_jax_seed(jax_version_or_commit: str, python_version: str,
-                     output_jax_lock_file: str):
-    """
-    Simulates the behavior of the `prepare_jax_seed.sh` script.
-    This function creates a JAX requirements lock file.
     """
     pass
 
