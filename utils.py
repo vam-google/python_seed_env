@@ -366,10 +366,37 @@ def get_commit_hash_for_tag(tag_name, org_repo):
     print(f"The commit hash is {commit_hash}.")
     return commit_hash
 
+def download_seed_file_from_git_remote(org_repo, tag_or_commit, file_name):
+    """Downloads a specified seed file from a GitHub repository.
+
+    This function first determines the exact commit hash for a given tag or commit reference.
+    It then constructs the raw GitHub content URL for the specified file within that commit
+    and proceeds to download the file.
+
+    Args:
+        org_repo (str): The GitHub organization and repository name (e.g., "owner/repo_name").
+        tag_or_commit (str): A Git tag name (e.g., "v1.0.0") or a full 40-character commit SHA.
+        file_name (str): The path to the file within the repository at the given tag/commit
+                         (e.g., "build/requirements_lock_3_10.txt").
+
+    Raises:
+        SystemExit: If an error occurs during the determination of the commit hash
+                    (e.g., tag/commit not found, API rate limit exceeded) or
+                    during the file download (e.g., file not found on remote, network error).
+                    Errors are reported to stderr before exiting.
+    """
+    # Get the commit hash for the tag or directly validate if it's a commit
+    COMMIT_HASH = get_commit_hash_for_tag(tag_or_commit, org_repo)
+
+    final_seed_file_path = f"https://raw.githubusercontent.com/{org_repo}/{COMMIT_HASH}/{file_name}"
+
+    # Download the python seed lock file
+    download_remote_file(final_seed_file_path)
+
+# TODO: Create tests and remove the following examples.
 # Example usage:
 if __name__ == "__main__":
     # ORG_REPO = "jax-ml/jax" # A public repo for testing
-    # # ORG_REPO = "google/irepo" # Example of a real project repo
 
     # print("\n--- Test Case 1: Valid Tag ---")
     # # A known good tag from octocat/Spoon-Knife
@@ -377,7 +404,6 @@ if __name__ == "__main__":
     # try:
     #     result_hash = get_commit_hash_for_tag(tag_name_valid, ORG_REPO)
     #     print(f"Resolved hash for '{tag_name_valid}': {result_hash} (Test PASSED).")
-    #     # Expected hash: 1ad05bb26105f23ee7728b36cca12901fe70e187
     # except SystemExit as e:
     #     print(f"Test 1 FAILED: Script exited with code {e.code}.")
 
@@ -400,10 +426,7 @@ if __name__ == "__main__":
     #     else:
     #         print(f"Test 3 FAILED: Script exited with unexpected code {e.code} for '{non_existent_ref}'.")
 
-    #is_valid_commit("1ad05bb26105f23ee7728b36cca12901fe70e187", "jax-ml/jax")
-    # ORG_REPO = "octocat/Spoon-Knife" # A public repo for testing
-    # # ORG_REPO = "google/irepo" # Example of a real project repo
-
+ 
     # print("\n--- Test Case 1: Valid Commit Hash ---")
     # # A known good commit from octocat/Spoon-Knife
     # valid_sha = "1ad05bb26105f23ee7728b36cca12901fe70e187"
@@ -427,15 +450,6 @@ if __name__ == "__main__":
     # else:
     #     print(f"'{invalid_format_short}' incorrectly identified as valid. Test FAILED.")
 
-    # print("\n--- Test Case 4: Invalid Format (non-hex chars) ---")
-    # invalid_format_chars = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
-    # if not is_valid_commit(invalid_format_chars, ORG_REPO):
-    #     print(f"'{invalid_format_chars}' is correctly identified as invalid format. Test PASSED.")
-    # else:
-    #     print(f"'{invalid_format_chars}' incorrectly identified as valid. Test FAILED.")
-
-
-
     # generate_pyproject_toml("3.11")
     # if not os.path.exists("uv.lock"):
     #     with open("uv.lock", "w") as f: f.write("")
@@ -451,63 +465,45 @@ if __name__ == "__main__":
     #     project_requirements_file="project_requirements.txt",
     #     output_file="uv_lock_output.txt"
     # )
-
     # print(f"\nbuild_seed_env finished with status: {status}")
-
     # # Clean up dummy files
     # for f in ["uv.lock", "seed_requirements.txt", "project_requirements.txt",
     #          "uv_lock_output.txt"]:
     #     if os.path.exists(f):
     #         os.remove(f)
+  
 
-    # # Test cases:
-
-    # # 1. Successful generation with default output file
     # print("--- Test Case 1: Successful generation (default output) ---")
     # generate_pyproject_toml("3.10")
     # print("-" * 50)
-
     # # Clean up for next test
     # if os.path.exists("./pyproject.toml"):
     #     os.remove("./pyproject.toml")
-
     # # 2. Successful generation with a specified output file
     # print("--- Test Case 2: Successful generation (custom output) ---")
     # generate_pyproject_toml("3.11", "./my_project/pyproject.toml")
     # print("-" * 50)
-
     # # Clean up for next test
     # if os.path.exists("./my_project/pyproject.toml"):
     #     os.remove("./my_project/pyproject.toml")
     #     os.rmdir("./my_project") # Remove the directory if it was created
-
     # # 3. Error case: Missing Python version
     # print("--- Test Case 3: Error - Missing Python version ---")
     # generate_pyproject_toml("")
     # print("-" * 50)
-
-    # # 4. Warning case: Invalid Python version format
+    # # 4. Error case: Invalid Python version format
     # print("--- Test Case 4: Warning - Invalid Python version format ---")
     # generate_pyproject_toml("3")
     # print("-" * 50)
-
-    # # 5. Warning case: Another invalid Python version format
+    # # 5. Error case: Another invalid Python version format
     # print("--- Test Case 5: Warning - Another invalid Python version format ---")
     # generate_pyproject_toml("3.10.5")
     # print("-" * 50)
 
-    # # To see the content of the generated file:
-    # try:
-    #     with open("pyproject.toml", 'r') as f:
-    #         print("\nContent of generated pyproject.toml:")
-    #         print(f.read())
-    # except FileNotFoundError:
-    #     pass
-
-    pass
     # A valid url
     # test_url = "https://raw.githubusercontent.com/jax-ml/jax/1ad05bb26105f23ee7728b36cca12901fe70e187/build/requirements_lock_3_12.txt"
     # Invalid url
     # test_url = "https://example.com/nonexistent_file.txt" # Example 404 URL
     # download_remote_file(test_url)
 
+    pass
