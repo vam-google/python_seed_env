@@ -314,6 +314,7 @@ def is_valid_commit(input_ref, org_repo):
             return False
     else:
         print("Input does not look like a 40-character commit hash. Please check your inputs.", file=sys.stderr)
+        print(f'!!!!!! commit: + {input_ref}')
         return False
 
 def get_commit_hash_for_tag(tag_name, org_repo):
