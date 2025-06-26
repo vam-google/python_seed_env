@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import generate_seed_env_lock_files
 import os
 import prepare_jax_seed
 import shutil
@@ -17,6 +18,10 @@ PYTHON_VERSIONS_DEFAULT = ["3.10", "3.11", "3.12"]
 LATEST_JAX_VERSION = "jax-v0.6.2"
 # Patch file path for JAX on Python 3.10 version
 JAX_PATCH_FILE = "jax_requirements_lock_3_10.patch"
+# Name of the GPU constrains file
+CONSTRAINTS_GPU_ONLY = "constraints_gpu_only.txt"
+# Name of the TPU constrains file
+CONSTRAINTS_TPU_ONLY = "constraints_tpu_only.txt"
 
 
 # --- Main CLI Logic ---
@@ -111,7 +116,15 @@ def main():
                 prepare_jax_seed(args.jax_github_commit, python_version, jax_temp_lock_file)
 
             # Build the combined seed environment lock files using uv
-            build_seed_env(jax_temp_lock_file, REQUIREMENTS_FILE_NAME, output_maxtext_requirement_lock_file)
+            generate_seed_env_lock_files(
+                seed_repo_lock_file = jax_temp_lock_file,
+                host_repo_requirements_file = REQUIREMENTS_FILE_NAME,
+                constraints_gpu_only_file = CONSTRAINTS_GPU_ONLY,
+                constraints_tpu_only_file = CONSTRAINTS_TPU_ONLY,
+                final_output_file = output_maxtext_requirement_lock_file,
+                building_gpu_env=False,
+                building_tpu_env=False
+            )
 
             # Define the output folder structure
             # maxtext/seed_env_files/py${python_version}/
@@ -147,16 +160,8 @@ if __name__ == "__main__":
     # the exit status (0 for success, non-zero for error).
     sys.exit(main())
 
-# Assuming these functions will be provided in the build seed package.
-# --- Build Seed/Host Env Utility Functions (approximating build_seed_env.sh and other script behaviors) ---
-def build_seed_env(jax_lock_file: str, main_requirements_file: str, final_output_file: str):
-    """
-    Build Host/Seed Environment for MaxText.
-    Generates the maxtext_requirements_lock_3_12.txt
-    """
-    pass
-
 def apply_patch():
     """
     Apply patch to JAX requirements_lock.txt for Python 3.10.
     """
+    pass
