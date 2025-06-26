@@ -20,7 +20,7 @@ sed -i 's/\/logging.git/\/logging.git@44b4810e65e8c0a7d9e4e207c60e51d9458a3fb8/g
 # Commands to create env
 # ---------------------------------
 uv add --managed-python --no-build --no-sync --resolution=highest -r requirements_lock_3_12.txt
-# Uncomment if building GPU env
+# Comment if building GPU env
 # cat constraints_gpu_only.txt | xargs -I {} uv remove --managed-python --no-sync --resolution=highest {}
 # Comment if building TPU env
 cat constraints_tpu_only.txt | xargs -I {} uv remove --managed-python --no-sync --resolution=highest {}
