@@ -22,6 +22,22 @@ def generate_lock_file_path(python_version):
     final_path = f"build/requirements_lock_{formatted_python_version}.txt"
     return final_path
 
+def run(tag_or_commit: str, python_version: str):
+    """
+    Prepares the JAX seed environment by downloading the appropriate lock file.
+
+    Args:
+        tag_or_commit (str): The JAX version tag or commit hash (e.g., "jax-v0.6.2").
+        python_version (str): The Python version (e.g., "3.10").
+    """
+    # Finalize the requirements lock file remote github path
+    requirements_lock_file_name = generate_lock_file_path(python_version)
+
+    # Download the python seed lock file
+    download_seed_file_from_git_remote(ORG_REPO, tag_or_commit, requirements_lock_file_name)
+
+    print("\nPrepared JAX seed successfully.")
+
 if __name__ == "__main__":
     print(f"Current working directory in script: {os.getcwd()}")
 
@@ -35,10 +51,7 @@ if __name__ == "__main__":
     TAG_OR_COMMIT = sys.argv[1]
     PYTHON_VERSION = sys.argv[2]
 
-    # Finalize the requirements lock file remote github path
-    requirements_lock_file_name = generate_lock_file_path(PYTHON_VERSION)
-
-    # Download the python seed lock file
-    download_seed_file_from_git_remote(ORG_REPO, TAG_OR_COMMIT, requirements_lock_file_name)
+    # Prepare teh JAX seed environment
+    run(TAG_OR_COMMIT, PYTHON_VERSION)
 
     print("\nPrepared JAX seed successfully.")

@@ -46,7 +46,7 @@ def main():
         "jax_github_commit",
         nargs='?',  # Optional, allows 0 or 1 argument
         type=str,
-        default="main", # Default to 'main' branch if no commit is provided
+        default=LATEST_JAX_VERSION, # Default to LATEST_JAX_VERSION branch if no commit is provided
         help="Optional: JAX GitHub commit hash or branch name (e.g., 'main', "
              "'d3f08713bc8cc2700851c61c55d7d7dde1de5a02'). Defaults to 'main'."
     )
@@ -88,7 +88,7 @@ def main():
             output_maxtext_requirement_lock_file = f"maxtext_requirements_lock_{machine_type}_{py_version_sanitized}.txt"
             jax_temp_lock_file = f"requirements_lock_{py_version_sanitized}.txt"
 
-            print(f"\nProcessing for Python {python_version}...")
+            print(f"\nProcessing for Python {python_version} on {machine_type.upper()}...")
 
             # Cleanup existing temporary files for this iteration to ensure a clean slate
             files_to_clean_per_iteration = [
@@ -109,12 +109,12 @@ def main():
                 # Prepare JAX seed file based on Python version
                 if python_version == "3.10":
                     # Use latest JAX version for python 3.10
-                    prepare_jax_seed(LATEST_JAX_VERSION, python_version, jax_temp_lock_file)
+                    prepare_jax_seed.run(LATEST_JAX_VERSION, python_version)
                     # Apply the specific patch for Python 3.10 JAX requirements
                     apply_patch(jax_temp_lock_file, JAX_PATCH_FILE)
                 else:
                     # For other Python versions, use a specific JAX commit or version
-                    prepare_jax_seed(args.jax_github_commit, python_version, jax_temp_lock_file)
+                    prepare_jax_seed.run(args.jax_github_commit, python_version)
 
                 # Build the combined seed environment lock files using uv
                 if machine_type == 'tpu':
