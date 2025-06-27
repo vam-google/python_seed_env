@@ -64,7 +64,7 @@ def main():
     for python_version in args.python_versions:
         if not python_version in SUPPORTED_PYTHON_VERSIONS:
             print("Error: Provided unsupported python versions in --python-versions argument. " \
-                  f"'{args.python_version}' is not supported. Exiting.", file=sys.stderr)
+                  f"'{args.python_versions}' is not supported. Exiting.", file=sys.stderr)
             return 1
 
     # Determine the remote URL for requirements.txt based on the commit/branch
