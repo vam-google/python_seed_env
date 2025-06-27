@@ -4,6 +4,7 @@ import os
 import re
 import subprocess
 import json
+import fileinput
 
 
 def download_remote_file(file_url):
@@ -392,6 +393,42 @@ def download_seed_file_from_git_remote(org_repo, tag_or_commit, file_name):
 
     # Download the python seed lock file
     download_remote_file(final_seed_file_path)
+
+def fix_maxtext_requirements(file_path: str):
+    """
+    Fixes specific dependency pins in a MaxText-related requirements.txt file.
+
+    This function addresses the following issues:
+    - Unpins protobuf from 3.20.3 (as it's outdated and better managed by TensorFlow).
+    - Changes sentencepiece to allow newer versions (>=0.1.97).
+    - Pins specific source links (JetStream and logging) to a known commit hash
+      to ensure reproducibility.
+
+    Args:
+        file_path (str): The path to the requirements.txt file to modify.
+                         Defaults to "requirements.txt" in the current directory.
+    """
+    if not os.path.exists(file_path):
+        print(f"Error: File not found at '{file_path}'")
+        return
+
+    replacements = {
+        "protobuf==3.20.3": "protobuf",
+        "sentencepiece==0.1.97": "sentencepiece>=0.1.97",
+        "/JetStream.git": "/JetStream.git@261f25007e4d12bb57cf8d5d61e291ba8f18430f",
+        "/logging.git": "/logging.git@44b4810e65e8c0a7d9e4e207c60e51d9458a3fb8",
+    }
+
+    try:
+        with fileinput.FileInput(file_path, inplace=True) as f:
+            for line in f:
+                new_line = line
+                for old_str, new_str in replacements.items():
+                    new_line = new_line.replace(old_str, new_str)
+                print(new_line, end='')
+        print(f"Successfully updated '{file_path}'.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 # TODO: Create tests and remove the following examples.
 # Example usage:

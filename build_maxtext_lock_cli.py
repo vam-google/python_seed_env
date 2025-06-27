@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import generate_seed_env_lock_files
 import os
 import prepare_jax_seed
 import shutil
@@ -76,6 +75,7 @@ def main():
     # 1. Download the MaxText requirements.txt file
     try:
         utils.download_remote_file(maxtext_remote_url)
+        utils.fix_maxtext_requirements(REQUIREMENTS_FILE_NAME)
     except Exception as e:
         print(f"Fatal error during initial requirements file processing: {e}", file=sys.stderr)
         return 1
@@ -84,10 +84,11 @@ def main():
     for python_version in args.python_versions:
         # Sanitize version string for file names (e.g., "3.10" -> "3_10")
         py_version_sanitized = python_version.replace('.', '_')
+        jax_temp_lock_file = f"requirements_lock_{py_version_sanitized}.txt"
+        # Clean up the existing JAX lock file before fetching it from JAX
+        _cleanup_files([jax_temp_lock_file])
         for machine_type in ('tpu', 'gpu'):
             output_maxtext_requirement_lock_file = f"maxtext_requirements_lock_{machine_type}_{py_version_sanitized}.txt"
-            jax_temp_lock_file = f"requirements_lock_{py_version_sanitized}.txt"
-
             print(f"\nProcessing for Python {python_version} on {machine_type.upper()}...")
 
             # Cleanup existing temporary files for this iteration to ensure a clean slate
@@ -95,12 +96,8 @@ def main():
                 "uv.lock", # uv creates this
                 output_maxtext_requirement_lock_file,
                 "pyproject.toml",
-                jax_temp_lock_file,
             ]
-            for f_name in files_to_clean_per_iteration:
-                if os.path.exists(f_name):
-                    os.remove(f_name)
-                    print(f"Cleaned up: '{f_name}'")
+            _cleanup_files(files_to_clean_per_iteration)
 
             try:
                 # Initialize pyproject.toml for the current Python version
@@ -163,6 +160,12 @@ def main():
     print("\nCompleted building MaxText environment lock files.")
 
     return 0
+
+def _cleanup_files(files_to_clean_per_iteration):
+    for f_name in files_to_clean_per_iteration:
+        if os.path.exists(f_name):
+            os.remove(f_name)
+            print(f"Cleaned up: '{f_name}'")
 
 if __name__ == "__main__":
     # the exit status (0 for success, non-zero for error).
