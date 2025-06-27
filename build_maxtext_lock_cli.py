@@ -31,9 +31,9 @@ def main():
                     "Python versions using uv."
     )
 
-    # Add the positional maxtext_github_commit argument
+    # Add the optional maxtext_github_commit argument
     parser.add_argument(
-        "maxtext_github_commit",
+        "--maxtext-github-commit",
         nargs='?',  # Optional, allows 0 or 1 argument
         type=str,
         default="main", # Default to 'main' branch if no commit is provided
@@ -41,14 +41,14 @@ def main():
              "'d3f08713bc8cc2700851c61c55d7d7dde1de5a02'). Defaults to 'main'."
     )
 
-    # Add the positional jax_github_commit argument
+    # Add the optional jax_github_commit argument
     parser.add_argument(
-        "jax_github_commit",
+        "--jax-github-commit-or-version",
         nargs='?',  # Optional, allows 0 or 1 argument
         type=str,
         default=LATEST_JAX_VERSION, # Default to LATEST_JAX_VERSION branch if no commit is provided
-        help="Optional: JAX GitHub commit hash or branch name (e.g., 'main', "
-             "'d3f08713bc8cc2700851c61c55d7d7dde1de5a02'). Defaults to 'main'."
+        help="Optional: JAX GitHub commit hash or versino (e.g., 'jax-v0.6.2' (version), "
+             "'d3f08713bc8cc2700851c61c55d7d7dde1de5a02' (commit)). Defaults to LATEST_JAX_VERSION."
     )
 
     # Add the optional python-versions argument
@@ -114,7 +114,7 @@ def main():
                     apply_patch(jax_temp_lock_file, JAX_PATCH_FILE)
                 else:
                     # For other Python versions, use a specific JAX commit or version
-                    prepare_jax_seed.run(args.jax_github_commit, python_version)
+                    prepare_jax_seed.run(args.jax_github_commit_or_version, python_version)
 
                 # Build the combined seed environment lock files using uv
                 if machine_type == 'tpu':
