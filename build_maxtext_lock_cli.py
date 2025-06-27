@@ -7,13 +7,16 @@ import shutil
 import sys
 import utils
 
-# --- Configuration Constants (matching shell script's globals) ---
+# Configuration Constants
 GITHUB_ORG = "AI-Hypercomputer"
 GITHUB_REPO = "maxtext"
 # Name of the requirements file in the GitHub
 REQUIREMENTS_FILE_NAME = "requirements.txt"
 # Default Python versions to process if not specified via CLI
 PYTHON_VERSIONS_DEFAULT = ["3.10", "3.11", "3.12"]
+# Supported python versions of the CLI tool
+SUPPORTED_PYTHON_VERSIONS = {"3.11", "3.12"}
+# Latest JAX version
 LATEST_JAX_VERSION = "jax-v0.6.2"
 # Patch file path for JAX on Python 3.10 version
 JAX_PATCH_FILE = "jax_requirements_lock_3_10.patch"
@@ -23,43 +26,46 @@ CONSTRAINTS_GPU_ONLY = "constraints_gpu_only.txt"
 CONSTRAINTS_TPU_ONLY = "constraints_tpu_only.txt"
 
 
-# --- Main CLI Logic ---
 def main():
     parser = argparse.ArgumentParser(
         description="A CLI tool to generate the MaxText requirements lock files for different "
                     "Python versions using uv."
     )
 
-    # Add the optional maxtext_github_commit argument
+    # Add the required maxtext-github-commit argument
     parser.add_argument(
         "--maxtext-github-commit",
-        nargs='?',  # Optional, allows 0 or 1 argument
         type=str,
-        default="main", # Default to 'main' branch if no commit is provided
-        help="Optional: MaxText GitHub commit hash or branch name (e.g., 'main', "
-             "'d3f08713bc8cc2700851c61c55d7d7dde1de5a02'). Defaults to 'main'."
+        required=True,
+        help="MaxText GitHub commit hash or branch name (e.g., 'main' (branch), "
+            "'d3f08713bc8cc2700851c61c55d7d7dde1de5a02' (commit))."
     )
 
-    # Add the optional jax_github_commit argument
+    # Add the required github-commit-or-version argument
     parser.add_argument(
         "--jax-github-commit-or-version",
-        nargs='?',  # Optional, allows 0 or 1 argument
         type=str,
-        default=LATEST_JAX_VERSION, # Default to LATEST_JAX_VERSION branch if no commit is provided
-        help="Optional: JAX GitHub commit hash or versino (e.g., 'jax-v0.6.2' (version), "
-             "'d3f08713bc8cc2700851c61c55d7d7dde1de5a02' (commit)). Defaults to LATEST_JAX_VERSION."
+        required=True,
+        help="JAX GitHub commit hash or version (e.g., 'jax-v0.6.2' (version), "
+            "'d3f08713bc8cc2700851c61c55d7d7dde1de5a02' (commit))."
     )
 
-    # Add the optional python-versions argument
+    # Add the required python-versions argument (still allows multiple values)
     parser.add_argument(
         "--python-versions",
-        nargs='*', # Optional, allows 0 or more arguments (space-separated list)
-        default=PYTHON_VERSIONS_DEFAULT,
-        help=f"Optional: Space-separated list of Python versions to generate lock files for. "
-             f"Defaults to: {' '.join(PYTHON_VERSIONS_DEFAULT)}"
+        nargs='+', # Required, allows 0 or more arguments (space-separated list)
+        required=True,
+        help=f"Space-separated list of Python versions to generate lock files for (e.g., '3.9 3.10')."
     )
 
     args = parser.parse_args()
+
+    # Santity check for the input Python versions
+    for python_version in args.python_versions:
+        if not python_version in SUPPORTED_PYTHON_VERSIONS:
+            print("Error: Provided unsupported python versions in --python-versions argument. " \
+                  f"'{args.python_version}' is not supported. Exiting.", file=sys.stderr)
+            return 1
 
     # Determine the remote URL for requirements.txt based on the commit/branch
     if args.maxtext_github_commit != "main":
@@ -75,6 +81,7 @@ def main():
     # 1. Download the MaxText requirements.txt file
     try:
         utils.download_remote_file(maxtext_remote_url)
+        # TODO: Once the MaxText requirements.txt gets cleanup, we can remove the dependency adjustment here.
         utils.fix_maxtext_requirements(REQUIREMENTS_FILE_NAME)
     except Exception as e:
         print(f"Fatal error during initial requirements file processing: {e}", file=sys.stderr)
@@ -82,11 +89,13 @@ def main():
 
     # 2. Loop through Python versions to build lock files
     for python_version in args.python_versions:
-        # Sanitize version string for file names (e.g., "3.10" -> "3_10")
         py_version_sanitized = python_version.replace('.', '_')
         jax_temp_lock_file = f"requirements_lock_{py_version_sanitized}.txt"
+
         # Clean up the existing JAX lock file before fetching it from JAX
         _cleanup_files([jax_temp_lock_file])
+
+        # Loop through machine types (i.e., TPU and GPU)
         for machine_type in ('tpu', 'gpu'):
             output_maxtext_requirement_lock_file = f"maxtext_requirements_lock_{machine_type}_{py_version_sanitized}.txt"
             print(f"\nProcessing for Python {python_version} on {machine_type.upper()}...")
@@ -133,7 +142,7 @@ def main():
                     continue
 
                 # Define the output folder structure
-                # maxtext/seed_env_files/py${python_version}/
+                # maxtext/seed_env_files/py${python_version}/{machine_type}
                 output_folder = os.path.join("maxtext", "seed_env_files", f"py{py_version_sanitized}", f"{machine_type}")
                 os.makedirs(output_folder, exist_ok=True) # Create folder if it doesn't exist
 
