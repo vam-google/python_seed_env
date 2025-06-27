@@ -137,7 +137,7 @@ def main():
 
                 # Define the output folder structure
                 # maxtext/seed_env_files/py${python_version}/
-                output_folder = os.path.join("maxtext", "seed_env_files", f"py{py_version_sanitized}")
+                output_folder = os.path.join("maxtext", "seed_env_files", f"py{py_version_sanitized}", f"{machine_type}")
                 os.makedirs(output_folder, exist_ok=True) # Create folder if it doesn't exist
 
                 # Move the generated files to the dedicated output folder
