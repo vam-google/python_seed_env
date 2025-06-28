@@ -12,8 +12,6 @@ GITHUB_ORG = "AI-Hypercomputer"
 GITHUB_REPO = "maxtext"
 # Name of the requirements file in the GitHub
 REQUIREMENTS_FILE_NAME = "requirements.txt"
-# Default Python versions to process if not specified via CLI
-PYTHON_VERSIONS_DEFAULT = ["3.10", "3.11", "3.12"]
 # Supported python versions of the CLI tool
 SUPPORTED_PYTHON_VERSIONS = {"3.11", "3.12"}
 # Latest JAX version
@@ -69,7 +67,7 @@ def main():
 
     # Determine the remote URL for requirements.txt based on the commit/branch
     if args.maxtext_github_commit != "main":
-        if not utils.is_valid_commit(args.maxtext_github_commit, "{GITHUB_ORG}/{GITHUB_REPO}"):
+        if not utils.is_valid_commit(args.maxtext_github_commit, f"{GITHUB_ORG}/{GITHUB_REPO}"):
             print(f"Error: Provided commit/branch '{args.maxtext_github_commit}' is not valid. Exiting.", file=sys.stderr)
             return 1
 
